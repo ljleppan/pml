@@ -1,60 +1,62 @@
 from django.db import models
+from django.dispatch import receiver
+from  django.db.models.signals import post_save
 
 class MetaData(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.CharField(max_length=32, unique=True)
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class CardSet(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class CardType(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class Faction(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class Rarity(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class Race(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class Mechanic(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class CharacterClass(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    value = models.SmallIntegerField()
+    value = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return "[" + str(self.value) + "] " + self.name
 
 class Card(models.Model):
     cardSet = models.ForeignKey(CardSet, on_delete=models.CASCADE)
@@ -62,19 +64,48 @@ class Card(models.Model):
     faction = models.ForeignKey(Faction, on_delete=models.CASCADE)
     rarity = models.ForeignKey(Rarity, on_delete=models.CASCADE)
     race = models.ForeignKey(Race, on_delete=models.CASCADE)
-    #character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
+    character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
 
     cardId = models.CharField(max_length=16, unique=True)
     name = models.CharField(max_length=64)
 
-    cost = models.SmallIntegerField()
-    value = models.SmallIntegerField()
+    complex_value = models.FloatField()
+    simple_value = models.FloatField()
 
+    mana = models.SmallIntegerField()
     attack = models.SmallIntegerField()
     health = models.SmallIntegerField()
 
     text = models.CharField(max_length=124)
-    mechanics = models.ManyToManyField(Mechanic)
+    card_mechanics = models.ManyToManyField(Mechanic, through='CardMechanic')
 
     def __str__(self):
-        return self.name
+        return self.name + " [" + str(self.mana) + ": " + str(self.attack) + "/" + str(self.health) + "]"
+
+class CardMechanic(models.Model):
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    mechanic = models.ForeignKey(Mechanic, on_delete=models.CASCADE)
+    effect_size = models.FloatField()
+
+    class Meta:
+        unique_together = ("card", "mechanic")
+
+@receiver(post_save, sender=MetaData)
+def update_simple_values_meta(sender, instance, created, **kwargs):
+    if not created:
+        for card in Card.objects.all():
+            update_simple_value(card)
+
+@receiver(post_save, sender=Mechanic)
+def update_simple_values_mech(sender, instance, created, **kwargs):
+    if not created:
+        for cm in CardMechanic.objects.filter(mechanic = instance):
+            update_simple_value(cm.card)
+
+def update_simple_value(card):
+    simple_value = card.health * MetaData.objects.get(name="health_coeff").value
+    simple_value += card.attack * MetaData.objects.get(name="attack_coeff").value
+    for cm in CardMechanic.objects.filter(card = card):
+        simple_value += cm.mechanic.value * cm.effect_size
+    card.simple_value = simple_value
+    card.save()
