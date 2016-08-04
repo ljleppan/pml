@@ -77,6 +77,11 @@ def _learn_linear(X, y):
     coeffs = coeffs[2:]
 
     i = 0
+    for ctype in CardType.objects.all().order_by('id'):
+        ctype.value = coeffs[i]
+        ctype.save()
+        i+=1
+
     for mechanic in Mechanic.objects.all().order_by('id'):
         mechanic.value = coeffs[i]
         mechanic.save()
@@ -85,12 +90,19 @@ def _learn_linear(X, y):
 def _data_as_numpy_array():
     data = []
     for card in Card.objects.all():
-        data.append([
+        item = [
             card,
             card.mana,
             card.health,
             card.attack,
-        ])
+        ]
+        for ctype in CardType.objects.all().order_by('id'):
+            if card.cardType.id == ctype.id:
+                item.append(1)
+            else:
+                item.append(0)
+        data.append(item)
+
     for mechanic in Mechanic.objects.all().order_by('id'):
         for item in data:
             card_mechanics = CardMechanic.objects.filter(card_id=item[0].id, mechanic_id=mechanic.id)

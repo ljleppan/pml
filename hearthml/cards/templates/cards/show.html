@@ -1,1 +1,50 @@
-<h1>/ CARDS / {{ id }}</h1>
+{% extends "base.html" %}
+
+{% block content %}
+  <header>
+    <h2 class="header">{{card.name}}</h2>
+  </header>
+  <div class="container">
+    <div class="row valign-wrapper">
+      <div class="col s12 m6">
+        <img src="{{card.image}}" alt="{{card.name}}">
+      </div>
+      <div class="col s12 m6">
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Estimated value</th>
+                <th>Delta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Basic</th>
+                <td>{{card.simple_value|floatformat:2}}</td>
+                <td>{{card.simple_delta|floatformat:2}}</td>
+              </tr>
+              <tr>
+                <th>Complex</th>
+                <td>{{card.complex_value|floatformat:2}}</td>
+                <td>{{card.complex_delta|floatformat:2}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        {% if mechanics %}
+          <ul class="collection with-header card">
+            <li class="collection-header"><h5>Mechanics</h5></li>
+            {% for cm in mechanics %}
+              <li class="collection-item">
+                {{cm.mechanic.name}}
+                <a href="{% url 'mechanics_show' cm.mechanic.id %}" class="secondary-content"><i class="material-icons">send</i></a>
+              </li>
+            {% endfor %}
+         </ul>
+       {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

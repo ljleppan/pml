@@ -66,6 +66,8 @@ class Card(models.Model):
     race = models.ForeignKey(Race, on_delete=models.CASCADE)
     character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
 
+    image = models.CharField(max_length=128)
+
     cardId = models.CharField(max_length=16, unique=True)
     name = models.CharField(max_length=64)
 
@@ -107,5 +109,6 @@ def update_simple_value(card):
     simple_value += card.attack * MetaData.objects.get(name="attack_coeff").value
     for cm in CardMechanic.objects.filter(card = card):
         simple_value += cm.mechanic.value * cm.effect_size
+    simple_value += card.cardType.value
     card.simple_value = simple_value
     card.save()

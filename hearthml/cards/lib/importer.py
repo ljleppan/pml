@@ -18,11 +18,15 @@ def _process_cards(data):
 
     MetaData.objects.update_or_create(
         name="health_coeff",
-        value=0
+        defaults = {
+            'value': 0
+        }
     )
     MetaData.objects.update_or_create(
         name="attack_coeff",
-        value=0
+        defaults = {
+            'value': 0
+        }
     )
 
     for card in data:
@@ -34,37 +38,53 @@ def _process_single(card):
         return # skip as debug card
 
     db_card = Card.objects.update_or_create(
-        name = card.get('name'),
         cardId = card.get('cardId'),
-        health = card.get('health', card.get('durability', 0)),
-        attack = card.get('attack', 0),
-        mana = card.get('cost', 0),
-        complex_value = 0,
-        simple_value = 0,
-        cardSet = CardSet.objects.get_or_create(
-            name=card.get("cardSet", "Default"),
-            value=0
-        )[0],
-        cardType = CardType.objects.get_or_create(
-            name=card.get("type", "Default"),
-            value=0
-        )[0],
-        faction = Faction.objects.get_or_create(
-            name=card.get("faction", "Neutral"),
-            value=0
-        )[0],
-        rarity = Rarity.objects.get_or_create(
-            name=card.get("rarity", "Free"),
-            value=0
-        )[0],
-        race = Race.objects.get_or_create(
-            name=card.get("race", "None"),
-            value=0
-        )[0],
-        character_class = CharacterClass.objects.get_or_create(
-            name=card.get("playerClass", "All"),
-            value=0
-        )[0]
+        defaults = {
+            'name': card.get('name'),
+            'health': card.get('health', card.get('durability', 0)),
+            'attack': card.get('attack', 0),
+            'mana': card.get('cost', 0),
+            'text': card.get('text', ""),
+            'image': card.get('img', ''),
+            'complex_value': 0,
+            'simple_value': 0,
+            'cardSet': CardSet.objects.get_or_create(
+                name=card.get("cardSet", "Default"),
+                defaults = {
+                    'value': 0
+                }
+            )[0],
+            'cardType': CardType.objects.get_or_create(
+                name=card.get("type", "Default"),
+                defaults = {
+                    'value': 0
+                }
+            )[0],
+            'faction': Faction.objects.get_or_create(
+                name=card.get("faction", "Neutral"),
+                defaults = {
+                    'value': 0
+                }
+            )[0],
+            'rarity': Rarity.objects.get_or_create(
+                name=card.get("rarity", "Free"),
+                defaults = {
+                    'value': 0
+                }
+            )[0],
+            'race': Race.objects.get_or_create(
+                name=card.get("race", "None"),
+                defaults = {
+                    'value': 0
+                }
+            )[0],
+            'character_class': CharacterClass.objects.get_or_create(
+                name=card.get("playerClass", "All"),
+                defaults = {
+                    'value': 0
+                }
+            )[0]
+        }
     )[0]
 
     _update_mechanics(card, db_card)
@@ -120,9 +140,13 @@ def _update_mechanics(card, db_card):
                     card = db_card,
                     mechanic = Mechanic.objects.get_or_create(
                         name = simple,
-                        value = 0
+                        defaults = {
+                            'value': 0
+                        }
                     )[0],
-                    effect_size = 1
+                    defaults = {
+                        'effect_size': 1
+                    }
                 )
 
                 text = text[len(simple):]
@@ -159,9 +183,13 @@ def _update_mechanics(card, db_card):
                 card = db_card,
                 mechanic = Mechanic.objects.get_or_create(
                     name = mechanic,
-                    value = 0
+                    defaults = {
+                        'value': 0
+                    }
                 )[0],
-                effect_size = (float(match.group(1)) + float(match.group(2)))/2
+                defaults = {
+                    'effect_size': (float(match.group(1)) + float(match.group(2)))/2
+                }
             )
             continue
 
@@ -173,9 +201,13 @@ def _update_mechanics(card, db_card):
                 card = db_card,
                 mechanic = Mechanic.objects.get_or_create(
                     name = mechanic,
-                    value = 0
+                    defaults = {
+                        'value': 0
+                    }
                 )[0],
-                effect_size = match.group(1)
+                defaults = {
+                    'effect_size': match.group(1)
+                }
             )
             continue
 
@@ -185,7 +217,11 @@ def _update_mechanics(card, db_card):
             card = db_card,
             mechanic = Mechanic.objects.get_or_create(
                 name = mechanic,
-                value = 0
+                defaults = {
+                    'value': 0
+                }
             )[0],
-            effect_size = 1
+            defaults = {
+                'effect_size': 1
+            }
         )

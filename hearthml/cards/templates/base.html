@@ -1,0 +1,78 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+    <link rel="stylesheet" href="{% static 'css/cards.css' %}">
+  </head>
+
+  <body>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+
+    <ul id="slide-out" class="side-nav fixed">
+      <li class="center">
+          <a id="sidenav-logo-a" href="{% url 'index' %}">
+            <img src="{% static 'img/hearthstone.svg' %}">
+          </a>
+      </li>
+      <li><a href="{% url 'index' %}">Front page</a></li>
+      <li><a href="{% url 'mechanics_index' %}">Mechanics</a></li>
+      <li><a href="{% url 'cards_index' %}">Cards</a></li>
+      <li class="sub-nav">
+          <ul>
+            <li><a href="{% url 'cards_index' card_type='Minion' %}">Minions</a></li>
+            <li><a href="{% url 'cards_index' card_type='Spell'%}">Spells</a></li>
+            <li><a href="{% url 'cards_index' card_type='Weapon'%}">Weapons</a></li>
+          </ul>
+      </li>
+
+      <li><div class="divider"></div></li>
+    </ul>
+
+    <nav class="blue">
+      <div class="nav-wrapper container">
+        <a href="#" data-activates="slide-out" class="button-collapse top-nav full hide-on-large-only">
+          <i class="material-icons">menu</i>
+        </a>
+        <a href="{% url 'index' %}" class="brand-logo right">HearthML</a>
+      </div>
+    </nav>
+
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="page-footer blue">
+      <div class="footer-copyright">
+        <div class="container">
+          Site © 2016 Leo Leppänen
+          <span class="right">
+            Site logo by <a href="https://github.com/andburn" target="_blank">Andrew Burnett</a>, licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+
+
+    <script>
+      $('.button-collapse').sideNav({
+          menuWidth: 300,
+          edge: 'left',
+          closeOnClick: true
+        }
+      );
+    </script>
+
+    <link href='https://fonts.googleapis.com/css?family=Sonsie+One|Material+Icons|Libre+Franklin|Merriweather:700|Roboto:400, 300' rel='stylesheet' type='text/css'>
+
+  </body>
+
+</html>

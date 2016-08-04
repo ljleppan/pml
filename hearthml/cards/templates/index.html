@@ -1,1 +1,54 @@
-<h1>/ </h1>
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="section col s12">
+        <h2>Introduction</h2>
+        <p class="flow-text">
+          HearthML uses machine learning techniques to evaluate "true values" of different Hearthstone cards by two different standards. The "Basic" estimates assume that each card's value is a first order polynomial based on card stats and values of card mechanics. For example, each point of health is valued at approximately <b>{{health_coeff.value|floatformat:2}}</b> mana and each point of attack at approximately <b>{{attack_coeff.value|floatformat:2}}</b> mana, with a "blank" minion starting at a mana cost of <b>{{minion_coeff.value|floatformat:2}}</b>. Such estimates are crude, but are easily hand-tuned to fix deficiencies in the machine learned values. The "Complex" estimates use more sophisticated machine learning methodologies to evaluate the cards, but they cannot be (easily) tuned to a similar degree. Both techniques tend to do worse on cards with unique abilities, while cards with common abilities are more accurately evaluated.
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <h4>A random sample of cards</h4>
+      </div>
+    </div>
+    <div class="row">
+      {% for card in cards %}
+        <div class="col s12 m6 l6">
+          <div class="card hs-card center" id="{{ card.cardId }}">
+            <a href="{% url 'cards_show' card.id %}">
+              <img src="{{card.image}}" alt="{{card.name}}">
+            </a>
+            <div class="container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Estimated value</th>
+                    <th>Delta</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>Basic</th>
+                    <td>{{card.simple_value|floatformat:2}}</td>
+                    <td>{{card.simple_delta|floatformat:2}}</td>
+                  </tr>
+                  <tr>
+                    <th>Complex</th>
+                    <td>{{card.complex_value|floatformat:2}}</td>
+                    <td>{{card.complex_delta|floatformat:2}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

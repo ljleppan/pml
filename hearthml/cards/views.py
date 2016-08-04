@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
+from django.db.models import ExpressionWrapper, F, FloatField
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -20,18 +21,64 @@ def learn(request):
     return HttpResponse(score)
 
 def index(request):
-    return render(request, 'index.html', {})
+    cards = Card.objects.all().order_by('?')[:4]
+    cards = cards.annotate(complex_delta=ExpressionWrapper(F('complex_value') - F('mana'), output_field=FloatField()))
+    cards = cards.annotate(simple_delta=ExpressionWrapper(F('simple_value') - F('mana'), output_field=FloatField()))
+
+    health_coeff = MetaData.objects.get(name="health_coeff")
+    attack_coeff = MetaData.objects.get(name="attack_coeff")
+    minion_coeff = CardType.objects.get(name="Minion")
+
+    print(health_coeff)
+
+    return render(request, 'index.html', {
+        'cards': cards,
+        'health_coeff': health_coeff,
+        'attack_coeff': attack_coeff,
+        'minion_coeff': minion_coeff
+    })
 
 # CARDS
-def cards_index(request):
-    return render(request, 'cards/index.html', {})
+def cards_index(request, card_type=None):
+    if not card_type:
+        cards = Card.objects.all()
+    else:
+        cards = Card.objects.filter(cardType__name__exact=card_type)
+    cards = cards.annotate(complex_delta=ExpressionWrapper(F('complex_value') - F('mana'), output_field=FloatField()))
+    cards = cards.annotate(simple_delta=ExpressionWrapper(F('simple_value') - F('mana'), output_field=FloatField()))
+
+    return render(request, 'cards/index.html', {
+        'cards': cards,
+        'card_type': card_type
+    })
 
 def cards_show(request, id):
-    return render(request, 'cards/show.html', {'id':id})
+    card = Card.objects.filter(id=id)
+    card = card.annotate(complex_delta=ExpressionWrapper(F('complex_value') - F('mana'), output_field=FloatField()))
+    card = card.annotate(simple_delta=ExpressionWrapper(F('simple_value') - F('mana'), output_field=FloatField()))
+    card = card[0]
+
+    mechanics = CardMechanic.objects.filter(card = card)
+    return render(request, 'cards/show.html', {
+        'card': card,
+        'mechanics':mechanics
+    })
 
 # MECHANICS
 def mechanics_index(request):
-    return render(request, 'mechanics/index.html', {})
+    mechanics = Mechanic.objects.all()
+
+    return render(request, 'mechanics/index.html', {
+        'mechanics': mechanics
+    })
 
 def mechanics_show(request, id):
-    return render(request, 'mechanics/show.html', {'id':id})
+    mechanic = Mechanic.objects.get(id=id)
+    cardmechanics = CardMechanic.objects.filter(mechanic=mechanic)
+    is_numeric = "%d" in mechanic.name
+
+    return render(request, 'mechanics/show.html', {
+        'mechanic': mechanic,
+        'cardmechanics': cardmechanics,
+        'is_numeric': is_numeric
+    })
