@@ -1,34 +1,39 @@
-from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_ridge import KernelRidge
-from sklearn.linear_model import LassoCV, LinearRegression, RidgeCV
-from sklearn.pipeline import Pipeline
-from sklearn import cross_validation
+from sklearn.linear_model import RidgeCV
+from sklearn.cross_validation import KFold
 
 import numpy as np
 
 from cards.models import *
+from .ridge_regression import ridge_regression
 
 def learn():
 
-    print("Doing thing!")
+    print("Getting myself an eduation")
 
     try:
         data = np.load("heathstonedata.npy")
-        print("Loaded from disk")
+        print(".npy get!")
     except Exception:
-        print("Fucked up, loading from DB")
+        print("It's fucked, jim! Loading data from DB. This WILL take time")
         data =  _data_as_numpy_array()
-        print("Saving to disk")
+        print("Saving to disk as .npy")
         np.save("heathstonedata.npy", data)
-        print("Done!")
+        print(".npy saved")
 
     cards = data[:, 0]
 
-    y = np.ascontiguousarray(data[:, 1], dtype=np.int)
-    X = np.ascontiguousarray(data[:, 2:], dtype=np.int)
+    y = np.ascontiguousarray(data[:, 1], dtype=np.float)
+    X = np.ascontiguousarray(data[:, 2:], dtype=np.float)
 
-    _learn_polynomial(cards, X, y)
-    _learn_linear(X, y)
+    print("Learning with kernels")
+     #_learn_polynomial(cards, X, y)
+
+    print("Learning the boring way")
+    cost_linear =_learn_linear(X, y)
+
+    print("All done")
+    return cost_linear
 
 def _learn_polynomial(cards, X, y):
     model = KernelRidge()
@@ -50,28 +55,8 @@ def _learn_polynomial(cards, X, y):
     print("Complex model accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
 
 def _learn_linear(X, y):
+    cost, coeffs = ridge_regression(X, y)
 
-    best_model = None
-    best_accuracy = float("-inf")
-    for model in [LinearRegression(), LassoCV(cv=3), RidgeCV(cv=3)]:
-        scores = cross_validation.cross_val_score(
-            model,
-            X,
-            y,
-            scoring="mean_squared_error",
-            cv=4
-        )
-        print("Linear model accuracy for %s: %0.5f (+/- %0.5f)" % (model.__class__.__name__, scores.mean(), scores.std() * 2))
-        if scores.mean() > best_accuracy:
-            best_accuracy = scores.mean()
-            best_model = model
-
-    model = best_model
-    model.fit(X, y)
-
-    print("Using " + str(model))
-
-    coeffs = model.coef_
     MetaData.objects.filter(name="health_coeff").update(value=coeffs[0])
     MetaData.objects.filter(name="minion_attack_coeff").update(value=coeffs[1])
     MetaData.objects.filter(name="durability_coeff").update(value=coeffs[2])
@@ -88,6 +73,8 @@ def _learn_linear(X, y):
         mechanic.value = coeffs[i]
         mechanic.save()
         i += 1
+
+    return cost
 
 def _data_as_numpy_array():
     data = []
