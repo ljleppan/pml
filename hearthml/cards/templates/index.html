@@ -6,7 +6,16 @@
       <div class="section col s12">
         <h2>Introduction</h2>
         <p class="flow-text">
-          HearthML uses machine learning techniques to evaluate "true values" of different Hearthstone cards by two different standards. The "Basic" estimates assume that each card's value is a first order polynomial based on card stats and values of card mechanics. For example, each point of health is valued at approximately <b>{{health_coeff.value|floatformat:2}}</b> mana and each point of attack at approximately <b>{{attack_coeff.value|floatformat:2}}</b> mana, with a "blank" minion starting at a mana cost of <b>{{minion_coeff.value|floatformat:2}}</b>. Such estimates are crude, but are easily hand-tuned to fix deficiencies in the machine learned values. The "Complex" estimates use more sophisticated machine learning methodologies to evaluate the cards, but they cannot be (easily) tuned to a similar degree. Both techniques tend to do worse on cards with unique abilities, while cards with common abilities are more accurately evaluated.
+          HearthML uses machine learning techniques to evaluate "true values" of different Hearthstone cards by two different standards. The "Basic" estimates assume that each card's value is a first order polynomial based on card stats and values of card mechanics. Such estimates are crude, but are easily hand-tuned to fix deficiencies in the machine learned values. The "Complex" estimates use more sophisticated machine learning methodologies to evaluate the cards, but they cannot be (easily) tuned to a similar degree. Both techniques tend to do worse on cards with unique abilities, while cards with common abilities are more accurately evaluated.
+        </p>
+        <p class="flow-text">
+          In the simple models, a 0 mana 0/0 minion start at <b>{{minion_coeff|floatformat:2}}</b> value, with each point of health costing <b>{{health_coeff|floatformat:2}}</b> and each point of attack costing <b>{{minion_attack_coeff|floatformat:2}}</b>.
+        </p>
+        <p class="flow-text">
+          Similarly, a 0 mana 0/0 weapon start at <b>{{weapon_coeff|floatformat:2}}</b> value, with each point of durability costing <b>{{durability_coeff|floatformat:2}}</b> and each point of attack costing <b>{{weapon_attack_coeff|floatformat:2}}</b>.
+        </p>
+        <p class="flow-text">
+          Spells naturally have no attack or health costs, but a 0 mana spell card with no effects has a theoretical value of <b>{{spell_coeff|floatformat:2}}</b>. This can be interpreted as meaning that a spell with two effects is less valuable than two spells with one effect each, with more of the effects going to waste.
         </p>
       </div>
     </div>

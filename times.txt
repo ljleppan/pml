@@ -1,5 +1,8 @@
-19  May 10h
-1   Aug 9h
-2   Aug 10h
-
-Total   29h
+DAY     Hours       Cumulative
+19 May  10h         10h
+1  Aug  9h          19h
+2  Aug  10h         29h
+3  Aug  7h          36h
+4  Aug  5h          41h
+5  Aug  4h          45h
+6  Aug  2.5h        47.5h 

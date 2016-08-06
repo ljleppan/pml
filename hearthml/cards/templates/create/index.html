@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <header>
+      <h2 class="header">Generate a random card</h2>
+    </header>
+    <div class="card-panel">
+      <form action="{% url 'create_random_card'%}" method="POST">
+        {% csrf_token %}
+        <div class="row valign-wrapper">
+
+          <div class="col s12 m4 l4">
+            <p>
+              <input class="with-gap" id="card_type_minion" type="radio" name="card_type" value="minion" checked/>
+              <label for="card_type_minion">Minion</label>
+            </p>
+            <p>
+              <input class="with-gap" id="card_type_spell" type="radio" name="card_type" value="spell" disabled />
+              <label for="card_type_spell">Spell</label>
+            </p>
+            <p>
+              <input class="with-gap" id="card_type_weapon" type="radio" name="card_type" value="weapon" disabled />
+              <label for="card_type_weapon">Weapon</label>
+            </p>
+          </div>
+
+          <div class="col s12 m8 l8">
+            <p class="range-field">
+              <label for="mana">Mana</label>
+              <input type="range" id="mana" name="mana" min="0" max="10" value="{{user_mana}}"/>
+            </p>
+            <p>
+              <input type="submit" class="waves-effect waves-light btn right" value="Create"></input>
+            </p>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if card %}
+  <div class="container">
+    <div class="row valign-wrapper">
+      <div class="col s12 m12 l6">
+        <div id="card-image"></div>
+        <script>
+          $(document).ready( function () {
+            var image = new Image();
+            $('#card-image').append(image);
+            var texture = new Image()
+            sunwell.createCard({
+            	"id": "{{card.image}}",
+            	"name": "{{card.name|safe}}",
+            	"text": "{% if card.mechanics %}{% for mechanic, id in card.mechanics %}{{mechanic|safe}}. {% endfor %}{% endif %}",
+            	"rarity": "{{card.rarity|upper}}",
+            	"type": "{{card.type|upper}}",
+              {% if card.race %}"race": "{{card.race}}",{%endif%}
+            	"cost": {{card.mana}},
+            	"attack": {{card.attack}},
+            	"health": {{card.health}},
+              "playerClass": "{{card.player_class|upper}}",
+              "texture": "{{card.image}}"
+            }, 300, image);
+
+              sunwell.init();
+          });
+        </script>
+      </div>
+      <div class="col s12 m12 l6">
+        <div class="card-panel">
+            <h4>{{card.name|safe}}</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Mana</th>
+                <th>Attack</th>
+                <th>Health</th>
+                <th>Card value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{card.mana}}</td>
+                <td>{{card.attack}}</td>
+                <td>{{card.health}}</td>
+                <td>{{card.value|floatformat:2}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        {% if card.mechanics %}
+        <ul class="collection with-header card">
+          <li class="collection-header"><h5>Mechanics</h5></li>
+          {% for mechanic, id in card.mechanics %}
+            <li class="collection-item">
+              <a href="{% url 'mechanics_show' id %}">{{mechanic|safe}}</a>
+            </li>
+          {% endfor %}
+       </ul>
+       {% endif %}
+
+    </div>
+  </div>
+</div>
+  {% endif %}
+
+  {% load static %}
+  <script>
+    window.sunwell = {
+        settings: {
+            titleFont: 'Belwe',
+            bodyFont: 'ITC Franklin Condensed',
+            bodyFontSize: 36,
+            bodyLineHeight: 55,
+            bodyFontOffset: {x: 0, y:0},
+            assetFolder: "{% static 'sunwell/assets/' %}",
+            textureFolder: "{% static 'sunwell/artwork/' %}",
+            smallTextureFolder: "{% static 'sunwell/artwork/' %}",
+            autoInit: false,
+            idAsTexture: true
+        }
+    };
+  </script>
+
+  {% load static %}
+  <script src="{% static 'sunwell/sunwell.js' %}"></script>
+
+{% endblock %}

@@ -105,10 +105,16 @@ def update_simple_values_mech(sender, instance, created, **kwargs):
             update_simple_value(cm.card)
 
 def update_simple_value(card):
-    simple_value = card.health * MetaData.objects.get(name="health_coeff").value
-    simple_value += card.attack * MetaData.objects.get(name="attack_coeff").value
+    simple_value = card.cardType.value
+    simple_value += card.health * MetaData.objects.get(name="health_coeff").value
+
+    if card.cardType.name == "Minion":
+        simple_value += card.attack * MetaData.objects.get(name="minion_attack_coeff").value
+    elif card.cardType.name == "Weapon":
+        simple_value += card.attack * MetaData.objects.get(name="weapon_attack_coeff").value
+
     for cm in CardMechanic.objects.filter(card = card):
         simple_value += cm.mechanic.value * cm.effect_size
-    simple_value += card.cardType.value
+
     card.simple_value = simple_value
     card.save()

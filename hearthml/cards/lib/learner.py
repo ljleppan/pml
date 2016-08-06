@@ -73,8 +73,10 @@ def _learn_linear(X, y):
 
     coeffs = model.coef_
     MetaData.objects.filter(name="health_coeff").update(value=coeffs[0])
-    MetaData.objects.filter(name="attack_coeff").update(value=coeffs[1])
-    coeffs = coeffs[2:]
+    MetaData.objects.filter(name="minion_attack_coeff").update(value=coeffs[1])
+    MetaData.objects.filter(name="durability_coeff").update(value=coeffs[2])
+    MetaData.objects.filter(name="weapon_attack_coeff").update(value=coeffs[3])
+    coeffs = coeffs[4:]
 
     i = 0
     for ctype in CardType.objects.all().order_by('id'):
@@ -93,9 +95,15 @@ def _data_as_numpy_array():
         item = [
             card,
             card.mana,
-            card.health,
-            card.attack,
         ]
+
+        if card.cardType.name == "Minion":
+            item.extend([card.health, card.attack, 0, 0])
+        elif card.cardType.name == "Weapon":
+            item.extend([0, 0, card.health, card.attack])
+        else:
+            item.extend([0, 0, 0, 0])
+
         for ctype in CardType.objects.all().order_by('id'):
             if card.cardType.id == ctype.id:
                 item.append(1)

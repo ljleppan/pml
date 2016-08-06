@@ -23,7 +23,19 @@ def _process_cards(data):
         }
     )
     MetaData.objects.update_or_create(
-        name="attack_coeff",
+        name="minion_attack_coeff",
+        defaults = {
+            'value': 0
+        }
+    )
+    MetaData.objects.update_or_create(
+        name="durability_coeff",
+        defaults = {
+            'value': 0
+        }
+    )
+    MetaData.objects.update_or_create(
+        name="weapon_attack_coeff",
         defaults = {
             'value': 0
         }

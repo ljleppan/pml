@@ -6,7 +6,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from .models import *
-from .lib import importer, learner
+from .lib import importer, learner, card_generator
+
 
 @user_passes_test(lambda u: u.is_staff)
 @transaction.atomic
@@ -26,16 +27,20 @@ def index(request):
     cards = cards.annotate(simple_delta=ExpressionWrapper(F('simple_value') - F('mana'), output_field=FloatField()))
 
     health_coeff = MetaData.objects.get(name="health_coeff")
-    attack_coeff = MetaData.objects.get(name="attack_coeff")
+    attack_coeff = MetaData.objects.get(name="minion_attack_coeff")
     minion_coeff = CardType.objects.get(name="Minion")
 
     print(health_coeff)
 
     return render(request, 'index.html', {
         'cards': cards,
-        'health_coeff': health_coeff,
-        'attack_coeff': attack_coeff,
-        'minion_coeff': minion_coeff
+        'health_coeff': MetaData.objects.get(name="health_coeff").value,
+        'minion_attack_coeff': MetaData.objects.get(name="minion_attack_coeff").value,
+        'minion_coeff': CardType.objects.get(name="Minion").value,
+        'durability_coeff': MetaData.objects.get(name="durability_coeff").value,
+        'weapon_attack_coeff': MetaData.objects.get(name="weapon_attack_coeff").value,
+        'weapon_coeff': CardType.objects.get(name="Weapon").value,
+        'spell_coeff': CardType.objects.get(name="Spell").value,
     })
 
 # CARDS
@@ -82,3 +87,16 @@ def mechanics_show(request, id):
         'cardmechanics': cardmechanics,
         'is_numeric': is_numeric
     })
+
+def create_random_card(request):
+    params = request.POST
+
+    response = {
+        'user_mana': params.get('mana', 5),
+    }
+
+    if 'mana' in params:
+        mana = int(params.get('mana'))
+        response['card'] = card_generator.generate_card(mana)
+
+    return render(request, 'create/index.html', response)
