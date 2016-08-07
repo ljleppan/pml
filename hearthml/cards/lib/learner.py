@@ -59,6 +59,11 @@ def _learn_linear(X, y):
         ctype.save()
         i+=1
 
+    for race in Race.objects.all().order_by('id'):
+        race.value = coeffs[i]
+        race.save()
+        i+=1
+
     for mechanic in Mechanic.objects.all().order_by('id'):
         mechanic.value = coeffs[i]
         mechanic.save()
@@ -83,6 +88,12 @@ def _data_as_numpy_array():
 
         for ctype in CardType.objects.all().order_by('id'):
             if card.cardType.id == ctype.id:
+                item.append(1)
+            else:
+                item.append(0)
+
+        for race in Race.objects.all().order_by('id'):
+            if card.race.id == race.id:
                 item.append(1)
             else:
                 item.append(0)

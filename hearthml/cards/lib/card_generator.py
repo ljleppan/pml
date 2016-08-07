@@ -6,6 +6,7 @@ from cards.models import *
 
 def generate_card(mana):
     budget = float(mana)
+    budget -= CardType.objects.get(name="Minion").value
 
     print("Start budget {}".format(budget))
 
@@ -23,6 +24,9 @@ def generate_card(mana):
     print("Budget is {} after {} health".format(budget, card['health']))
 
     card['attack'] = max(0, int(budget / MetaData.objects.get(name='minion_attack_coeff').value))
+    if card['attack'] == 0:
+        if random() < 0.75:
+            card['attack'] = 1
     budget -= (card['attack'] * MetaData.objects.get(name='minion_attack_coeff').value)
 
     print("Budget is {} after {} attack".format(budget, card['attack']))
@@ -39,6 +43,8 @@ def generate_card(mana):
         card['race'] = Race.objects.order_by('?').first().name
     if not 'race' in card or card['race'] == "None":
         card['race'] = None
+    if card['race'] == 'Demon':
+        card['player_class'] = "Warlock"
 
     card['value'] = -budget
     card['image'] = _get_image()
