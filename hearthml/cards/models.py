@@ -1,6 +1,6 @@
 from django.db import models
 from django.dispatch import receiver
-from  django.db.models.signals import post_save
+from django.db.models.signals import post_save
 
 class MetaData(models.Model):
     name = models.CharField(max_length=32, unique=True)
@@ -45,7 +45,7 @@ class Race(models.Model):
         return "[" + str(self.value) + "] " + self.name
 
 class Mechanic(models.Model):
-    name = models.CharField(max_length=32, unique=True)
+    name = models.CharField(max_length=128, unique=True)
     value = models.FloatField()
 
     def __str__(self):
@@ -93,16 +93,19 @@ class CardMechanic(models.Model):
         unique_together = ("card", "mechanic")
 
 @receiver(post_save, sender=MetaData)
-def update_simple_values_meta(sender, instance, created, **kwargs):
-    if not created:
+def update_simple_values_meta(sender, **kwargs):
+    if not kwargs.get('created', False):
         for card in Card.objects.all():
             update_simple_value(card)
+            card.save()
 
 @receiver(post_save, sender=Mechanic)
-def update_simple_values_mech(sender, instance, created, **kwargs):
-    if not created:
+def update_simple_values_mech(sender, instance, **kwargs):
+    if not kwargs.get('created', False):
         for cm in CardMechanic.objects.filter(mechanic = instance):
             update_simple_value(cm.card)
+            cm.card.save()
+
 
 def update_simple_value(card):
     simple_value = card.cardType.value
@@ -117,4 +120,3 @@ def update_simple_value(card):
         simple_value += cm.mechanic.value * cm.effect_size
 
     card.simple_value = simple_value
-    card.save()

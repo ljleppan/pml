@@ -1,11 +1,9 @@
-from sklearn.kernel_ridge import KernelRidge
-from sklearn.linear_model import RidgeCV
-from sklearn.cross_validation import KFold
-
 import numpy as np
 
 from cards.models import *
 from .ridge_regression import ridge_regression
+from .kernelized_ridge_regression import kernelized_ridge_regression
+from .kernelized_ridge_regression import predict as kernel_predict
 
 def learn():
 
@@ -27,32 +25,24 @@ def learn():
     X = np.ascontiguousarray(data[:, 2:], dtype=np.float)
 
     print("Learning with kernels")
-     #_learn_polynomial(cards, X, y)
+    cost_polynomial = _learn_polynomial(cards, X, y)
 
     print("Learning the boring way")
     cost_linear =_learn_linear(X, y)
 
     print("All done")
-    return cost_linear
+    return (cost_linear, cost_polynomial)
 
 def _learn_polynomial(cards, X, y):
-    model = KernelRidge()
-    model.fit(X, y)
-    predictions = model.predict(X)
+    cost, coeffs = kernelized_ridge_regression(X, y)
+
+    predictions = kernel_predict(X, coeffs)
 
     for i in range(X.shape[0]):
         cards[i].complex_value = predictions[i]
         cards[i].save()
 
-    scores = cross_validation.cross_val_score(
-        model,
-        X,
-        y,
-        scoring="mean_squared_error",
-        cv=4
-    )
-
-    print("Complex model accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
+    return cost
 
 def _learn_linear(X, y):
     cost, coeffs = ridge_regression(X, y)

@@ -1,3 +1,6 @@
+from sklearn.cross_validation import KFold
+import numpy as np
+
 def ridge_regression(X, y):
     cv = 5
     best_cost = float('inf')
@@ -20,20 +23,20 @@ def ridge_regression(X, y):
         delta = delta / 2
         print("Lamba in {}".format(lambas))
         for lamba in lambas:
-            print(lamba)
+            #print(lamba)
             cost = _score_cv(X, y, lamba)
             if cost < best_cost:
                 best_cost = cost
                 best_lamba = lamba
         print("Best lamba: {} (cost: {})".format(best_lamba, best_cost))
 
-    return (best_cost, _fit_ridge(X, y, lamba))
+    return (best_cost, _fit_ridge(X, y, best_lamba))
 
 def _score_cv(X, y, lamba, cv=5):
     cost = 0
     for train, test in KFold(len(y), n_folds=cv):
         w = _fit_ridge(X[train], y[train], lamba)
-        cost += _score_ridge(X[test], y[test], w)
+        cost += _score_ridge(X[test], y[test], w, lamba)
     return cost / cv
 
 def _fit_ridge(X, y, lamba):
@@ -43,9 +46,9 @@ def _fit_ridge(X, y, lamba):
     w = w.dot(X.T.dot(y))
     return w
 
-def _score_ridge(X, y, w):
+def _score_ridge(X, y, w, lamba):
     cost = y - X.dot(w)
-    return cost.T.dot(cost) / y.shape[0]
+    return cost.T.dot(cost) / y.shape[0] + (lamba * (w.T.dot(w)))
 
 def _predict_ridge(X, w):
     return X.dot(w)

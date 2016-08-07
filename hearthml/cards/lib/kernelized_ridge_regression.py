@@ -1,3 +1,6 @@
+from sklearn.cross_validation import KFold
+import numpy as np
+
 def kernelized_ridge_regression(X, y):
     cv = 5
     best_cost = float('inf')
@@ -20,34 +23,40 @@ def kernelized_ridge_regression(X, y):
         delta = delta / 2
         print("Lamba in {}".format(lambas))
         for lamba in lambas:
-            print(lamba)
+            #print(lamba)
             cost = _score_cv(X, y, lamba)
             if cost < best_cost:
                 best_cost = cost
                 best_lamba = lamba
         print("Best lamba: {} (cost: {})".format(best_lamba, best_cost))
 
-    return (best_cost, _fit_ridge(Phi, y, lamba))
+    return (best_cost, _fit(X, y, best_lamba))
 
 def _score_cv(X, y, lamba, cv=5):
     cost = 0
     for train, test in KFold(len(y), n_folds=cv):
-        w = _fit_ridge(X[train], y[train], lamba)
-        cost += _score_ridge(X[test], y[test], w)
+        w = _fit(X[train], y[train], lamba)
+        cost += _score(X[test], y[test], w, lamba)
     return cost / cv
 
-def _fit_ridge(X, y, lamba):
-    K = (1 + X.dot(X.T))**2
+def _fit(X, y, lamba):
+    K = (1 + X.dot(X.T))**3
+    #K = np.zeros((X.shape[0], X.shape[0]))
+    #for i in range(X.shape[0]):
+    #    for j in range(X.shape[0]):
+    #        K[i, j] = (1 + X[i].T.dot(X[j]))**3
 
-    w = Phi.dot(Phi.T)
-    w += np.eye(Phi.shape[1]).dot(lamba)
-    w = np.linalg.inv(w)
-    w = w.dot(Phi.dot(y))
+    alpha = K
+    alpha += np.eye(K.shape[1]).dot(lamba)
+    alpha = np.linalg.inv(alpha)
+    alpha = alpha.dot(y)
+
+    w = X.T.dot(alpha)
     return w
 
-def _score_ridge(X, y, w):
-    cost = y - X.dot(w)
-    return cost.T.dot(cost) / y.shape[0]
+def _score(X, y, w, lamba):
+    cost = y - predict(X, w)
+    return cost.T.dot(cost) / y.shape[0]  + (lamba * (w.T.dot(w)))
 
-def _predict_ridge(X, w):
+def predict(X, w):
     return X.dot(w)

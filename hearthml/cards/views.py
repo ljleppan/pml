@@ -18,8 +18,8 @@ def populate_db(request):
 @user_passes_test(lambda u: u.is_staff)
 @transaction.atomic
 def learn(request):
-    score = learner.learn()
-    return HttpResponse(score)
+    lin, poly = learner.learn()
+    return HttpResponse(str(lin) + "   " + str(poly))
 
 def index(request):
     cards = Card.objects.all().order_by('?')[:4]
@@ -29,8 +29,6 @@ def index(request):
     health_coeff = MetaData.objects.get(name="health_coeff")
     attack_coeff = MetaData.objects.get(name="minion_attack_coeff")
     minion_coeff = CardType.objects.get(name="Minion")
-
-    print(health_coeff)
 
     return render(request, 'index.html', {
         'cards': cards,
