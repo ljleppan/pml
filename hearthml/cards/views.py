@@ -43,10 +43,11 @@ def index(request):
 
 # CARDS
 def cards_index(request, card_type=None):
-    if len(card_type) > 1:
-        card_type = card_type[0].upper() + card_type[1:].lower()
-    else: # len == 1 or len == 0
-        card_type = card_type.upper()
+    if card_type:
+        if len(card_type) > 1:
+            card_type = card_type[0].upper() + card_type[1:].lower()
+        else: # len == 1 or len == 0
+            card_type = card_type.upper()
 
     if not card_type:
         cards = Card.objects.all()
