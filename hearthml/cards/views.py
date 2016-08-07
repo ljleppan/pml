@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.db.models import ExpressionWrapper, F, FloatField
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 
 from .models import *
@@ -43,10 +43,18 @@ def index(request):
 
 # CARDS
 def cards_index(request, card_type=None):
+    if len(card_type) > 1:
+        card_type = card_type[0].upper() + card_type[1:].lower()
+    else: # len == 1 or len == 0
+        card_type = card_type.upper()
+
     if not card_type:
         cards = Card.objects.all()
-    else:
+    elif CardType.objects.filter(name=card_type):
         cards = Card.objects.filter(cardType__name__exact=card_type)
+    else:
+        raise Http404("No such card type")
+
     cards = cards.annotate(complex_delta=ExpressionWrapper(F('complex_value') - F('mana'), output_field=FloatField()))
     cards = cards.annotate(simple_delta=ExpressionWrapper(F('simple_value') - F('mana'), output_field=FloatField()))
 
@@ -57,6 +65,10 @@ def cards_index(request, card_type=None):
 
 def cards_show(request, id):
     card = Card.objects.filter(id=id)
+
+    if not card:
+        raise Http404("No such card")
+
     card = card.annotate(complex_delta=ExpressionWrapper(F('complex_value') - F('mana'), output_field=FloatField()))
     card = card.annotate(simple_delta=ExpressionWrapper(F('simple_value') - F('mana'), output_field=FloatField()))
     card = card[0]
@@ -77,6 +89,10 @@ def mechanics_index(request):
 
 def mechanics_show(request, id):
     mechanic = Mechanic.objects.get(id=id)
+
+    if not mechanic:
+        raise Http404("No such mechanic")
+
     cardmechanics = CardMechanic.objects.filter(mechanic=mechanic)
     is_numeric = "%d" in mechanic.name
 
