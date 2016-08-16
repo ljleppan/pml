@@ -26,9 +26,9 @@
               <th>Attack</th>
               <th>Mana</th>
               <th>Value (basic)</th>
-              <th>Value (complex)</th>
+              <!--<th>Value (complex)</th>-->
               <th>Delta (basic)</th>
-              <th>Delta (complex)</th>
+              <!--<th>Delta (complex)</th>-->
             </tr>
           </thead>
           <tbody>
@@ -39,9 +39,9 @@
                 <td><a href="{% url 'cards_show' card.id %}">{{card.attack}}</a></td>
                 <td><a href="{% url 'cards_show' card.id %}">{{card.mana}}</a></td>
                 <td><a href="{% url 'cards_show' card.id %}">{{card.simple_value|floatformat:1}}</a></td>
-                <td><a href="{% url 'cards_show' card.id %}">{{card.complex_value|floatformat:1}}</a></td>
+                <!--<td><a href="{% url 'cards_show' card.id %}">{{card.complex_value|floatformat:1}}</a></td>-->
+                <!--<td><a href="{% url 'cards_show' card.id %}">{{card.complex_delta|floatformat:1}}</a></td>-->
                 <td><a href="{% url 'cards_show' card.id %}">{{card.simple_delta|floatformat:1}}</a></td>
-                <td><a href="{% url 'cards_show' card.id %}">{{card.complex_delta|floatformat:1}}</a></td>
               </tr>
             {% endfor %}
           </tbody>

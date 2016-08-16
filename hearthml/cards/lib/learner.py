@@ -51,6 +51,13 @@ def _learn_linear(X, y):
     MetaData.objects.filter(name="minion_attack_coeff").update(value=coeffs[1])
     MetaData.objects.filter(name="durability_coeff").update(value=coeffs[2])
     MetaData.objects.filter(name="weapon_attack_coeff").update(value=coeffs[3])
+
+    # Since we are only doing updates, the post_save hooks do not get
+    # called. So we need to ensure that all cards get their simple_value
+    # fields refreshed. We do this by simply calling save() on a random
+    # metadata field, which causes a refresh for all cards.
+    MetaData.objects.first().save()
+
     coeffs = coeffs[4:]
 
     i = 0

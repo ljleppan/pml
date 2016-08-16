@@ -106,12 +106,14 @@ def _generate_name_2():
 
     conj = ["of the"]
 
-    name = first[randint(0, len(first) - 1)]
-    name += " "  + second[randint(0, len(second) - 1)]
+    if random() < 0.66:
+        name = first[randint(0, len(first) - 1)] + " "  + second[randint(0, len(second) - 1)]
+    else:
+        name = second[randint(0, len(second) - 1)]
     if random() < 0.25:
         name += " of the " + second[randint(0, len(second) - 1)]
-    elif random() < 0.33:
-        name += " of the " + first[randint(0, len(first) - 1)] + " " + second[randint(0, len(second) - 1)]
+    #elif random() < 0.33:
+    #    name += " of the " + first[randint(0, len(first) - 1)] + " " + second[randint(0, len(second) - 1)]
     return name
 
 
