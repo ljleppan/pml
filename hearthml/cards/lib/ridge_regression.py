@@ -19,8 +19,12 @@ def ridge_regression(X, y):
 
     delta = 2
     for i in range(10):
-        lambas = [lamba for lamba in np.linspace(best_lamba - delta, best_lamba + delta, num = 11) if lamba > 0.0001]
-        delta = delta / 2
+        if best_lamba - delta >= 0:
+            lambas = [lamba for lamba in np.linspace(best_lamba - delta, best_lamba + delta, num = 11)]
+            delta = delta / 2
+        else:
+            lambas = [lamba for lamba in np.linspace(0, 2*delta, num = 11)]
+            delta = delta / 4
         print("Lamba in {}".format(lambas))
         for lamba in lambas:
             #print(lamba)
