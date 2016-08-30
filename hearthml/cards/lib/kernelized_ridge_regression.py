@@ -1,19 +1,27 @@
 from sklearn.cross_validation import KFold
+import json
 import numpy as np
 
 def kernelized_ridge_regression(X, y):
+
+    print("AAAAA")
+
     cv = 5
     best_cost = float('inf')
     best_lamba = None
     best_p = None
 
-    for p in range(1, 15):
+    scores = {}
+
+    for p in range(1, 10):
+        scores[p] = {}
         lambas = [lamba for lamba in np.linspace(0, 10, num = 11) if lamba >= 0]
         print("Lamba in {}".format(lambas))
         for lamba in lambas:
-            if lamba == 0:
-                lamba = 0.00001
+            if lamba <= 0:
+                lamba = 0.0000001
             cost = _score_cv(X, y, lamba, p)
+            scores[p][lamba] = cost
             if cost < best_cost:
                 best_cost = cost
                 best_lamba = lamba
@@ -22,17 +30,30 @@ def kernelized_ridge_regression(X, y):
 
         delta = 2
         for i in range(10):
-            lambas = [lamba for lamba in np.linspace(best_lamba - delta, best_lamba + delta, num = 11) if lamba > 0.0001]
-            delta = delta / 2
+            if best_lamba - delta >= 0:
+                lambas = [lamba for lamba in np.linspace(best_lamba - delta, best_lamba + delta, num = 11)]
+                delta = delta / 2
+            else:
+                lambas = [lamba for lamba in np.linspace(0, 2*delta, num = 11)]
+                delta = delta / 4
+
+
             print("Lamba in {}".format(lambas))
             for lamba in lambas:
+                if lamba <= 0:
+                    lamba = 0.0000001
                 #print(lamba)
-                cost = _score_cv(X, y, lamba, p)
-                if cost < best_cost:
-                    best_cost = cost
-                    best_lamba = lamba
+                try:
+                    cost = _score_cv(X, y, lamba, p)
+                    scores[p][lamba] = cost
+                    if cost < best_cost:
+                        best_cost = cost
+                        best_lamba = lamba
+                except Exception:
+                    pass
             print("Best lamba: {}, p: {} (cost: {})".format(best_lamba, best_p, best_cost))
 
+    print(json.dumps(scores, sort_keys=True))
     return (best_cost, _fit(X, y, best_lamba, best_p))
 
 def _score_cv(X, y, lamba, p, cv=5):

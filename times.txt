@@ -7,3 +7,6 @@ DAY     Hours       Cumulative
 5  Aug  4h          45h
 6  Aug  7h          52h
 7  Aug  3h          55h
+8  Aug  4h          59h
+12 Aug  4h          63h
+15 Aug  3h          66h
