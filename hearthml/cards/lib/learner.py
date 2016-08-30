@@ -24,8 +24,8 @@ def learn():
     y = np.ascontiguousarray(data[:, 1], dtype=np.float)
     X = np.ascontiguousarray(data[:, 2:], dtype=np.float)
 
-    print("Learning with kernels")
-    cost_polynomial = _learn_polynomial(cards, X, y)
+    # print("Learning with kernels")
+    # cost_polynomial = _learn_polynomial(cards, X, y)
 
     print("Learning the boring way")
     cost_linear =_learn_linear(X, y)
