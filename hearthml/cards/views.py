@@ -18,8 +18,8 @@ def populate_db(request):
 @user_passes_test(lambda u: u.is_staff)
 @transaction.atomic
 def learn(request):
-    lin, poly = learner.learn()
-    return HttpResponse(str(lin) + "   " + str(poly))
+    lin = learner.learn()
+    return HttpResponse(str(lin))
 
 def index(request):
     cards = Card.objects.all().order_by('?')[:4]

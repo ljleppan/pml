@@ -10,7 +10,7 @@ def import_cards():
         for card_type in types:
             request =  "https://omgvamp-hearthstone-v1.p.mashape.com/cards/types/%s?collectible=1&mashape-key=%s" % (card_type, MASHAPE_KEY)
             response = urllib.request.urlopen(request)
-            str_response = response.readall().decode('utf-8')
+            str_response = response.read().decode('utf-8')
             _process_cards(json.loads(str_response))
 
 

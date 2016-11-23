@@ -31,7 +31,8 @@ def learn():
     cost_linear =_learn_linear(X, y)
 
     print("All done")
-    return (cost_linear, cost_polynomial)
+    return cost_linear
+    #return (cost_linear, cost_polynomial)
 
 def _learn_polynomial(cards, X, y):
     cost, coeffs = kernelized_ridge_regression(X, y)

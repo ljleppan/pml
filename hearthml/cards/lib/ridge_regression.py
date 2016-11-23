@@ -27,7 +27,8 @@ def ridge_regression(X, y):
             delta = delta / 4
         print("Lamba in {}".format(lambas))
         for lamba in lambas:
-            #print(lamba)
+            if lamba == 0:
+                lamba = 0.00001
             cost = _score_cv(X, y, lamba)
             if cost < best_cost:
                 best_cost = cost
